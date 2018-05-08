@@ -11,7 +11,8 @@ class Shelf extends React.Component{
             {showBooks.length===0?<p>Loading...</p>:(
                 <div className="bookshelf-books">
                     <ol className="books-grid">
-                        {showBooks.map((book)=>(<li key={book['id']}>
+                        {showBooks.map((book)=>(
+                            <li key={book['id']}>
                             <div className="book">
                                 <div className="book-top">
                                     <div className="book-cover"
