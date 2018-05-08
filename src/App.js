@@ -4,17 +4,26 @@ import './App.css'
 import SearchBook from './SearchBook'
 import ListBook from './ListBook'
 import {Route} from 'react-router-dom'
+import EventEmitter from "./EventEmitter";
+
 
 class BooksApp extends React.Component {
   state = {
     books:[]
   }
-  componentDidMount(){
+  updateBook = ()=>{
     BooksAPI.getAll().then((books)=>{
-      this.setState({
-          books
-      })
+        this.setState({
+            books
+        })
     })
+  }
+  componentDidMount(){
+      EventEmitter.on('bookMove',this.updateBook)
+      this.updateBook()
+  }
+  componentWillUnmount(){
+      EventEmitter.removeListener('bookMove',this.updateBook)
   }
   render() {
     return (
