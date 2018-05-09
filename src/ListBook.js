@@ -10,59 +10,51 @@ const shelves = {
     read:"Read",
 }
 
-export class Book extends React.Component{
-    state = {
-        shelf:this.props.shelf
+export const Book = (props)=>{
+    const {book} = props
+    const handleMove = (event)=>{
+        BooksAPI.update(book,event.target.value)
+        EventEmitter.emit('bookMove',book,event.target.value)
     }
-
-    handleMove = (event)=>{
-        BooksAPI.update(this.props.book,event.target.value)
-        EventEmitter.emit('bookMove')
-    }
-
-    render(){
-        const {book} = this.props
-        return (
-            <li>
-                <div className="book">
-                    <div className="book-top">
-                        <div className="book-cover"
-                             style={{ width: 128, height: 193, backgroundImage: `url("${book['imageLinks']['smallThumbnail']}")` }}></div>
-                        <div className="book-shelf-changer">
-                            <select value={this.state.shelf} onChange={this.handleMove}>
-                                <option disabled>Move to...</option>
-                                <option value="currentlyReading">Currently Reading</option>
-                                <option value="wantToRead">Want to Read</option>
-                                <option value="read">Read</option>
-                                <option value="none">None</option>
-                            </select>
-                        </div>
+    return (
+        <li>
+            <div className="book">
+                <div className="book-top">
+                    {book['imageLinks']&&(<div className="book-cover"
+                                                                style={{ width: 128, height: 193, backgroundImage: `url("${book['imageLinks']['smallThumbnail']}")` }}></div>)}
+                    <div className="book-shelf-changer">
+                        <select value={book['shelf']?book['shelf']:'none'} onChange={handleMove}>
+                            <option disabled>Move to...</option>
+                            <option value="currentlyReading">Currently Reading</option>
+                            <option value="wantToRead">Want to Read</option>
+                            <option value="read">Read</option>
+                            <option value="none">None</option>
+                        </select>
                     </div>
-                    <div className="book-title">{book['title']}</div>
-                    {book['authors'] && <div className="book-authors">{book['authors'].join(' and ')}</div>}
-
                 </div>
-            </li>
-        )
-    }
+                <div className="book-title">{book['title']?book['title']:'none'}</div>
+                {book['authors'] && <div className="book-authors">{book['authors'].join(' and ')}</div>}
+
+            </div>
+        </li>
+    )
 }
 
-class Shelf extends React.Component{
-    render(){
-        const { shelf, books } = this.props
-        let showBooks = books.filter((book)=>(book['shelf']===shelf))
-        return <div className="bookshelf">
-            <h2 className="bookshelf-title">{shelves[shelf]}</h2>
-            {showBooks.length===0?<p>Loading...</p>:(
-                <div className="bookshelf-books">
-                    <ol className="books-grid">
-                        {showBooks.map((book)=><Book shelf={shelf} key={book['id']} book={book}/>)}
-                    </ol>
-                </div>
-            )}
+export const Shelf = (props)=>{
+    const { shelf, books } = props
+    let showBooks = books.filter((book)=>(book['shelf']===shelf))
+    return <div className="bookshelf">
+        <h2 className="bookshelf-title">{shelves[shelf]}</h2>
+        {showBooks.length===0?<p>Loading...</p>:(
+            <div className="bookshelf-books">
+                <ol className="books-grid">
+                    {showBooks.map((book)=><Book key={book['id']} book={book}/>)}
+                </ol>
+            </div>
+        )}
 
-        </div>
-    }
+    </div>
+
 }
 Shelf.propTypes = {
     books : PropTypes.array.isRequired,

@@ -11,16 +11,32 @@ class BooksApp extends React.Component {
   state = {
     books:[]
   }
-  updateBook = ()=>{
-    BooksAPI.getAll().then((books)=>{
-        this.setState({
-            books
-        })
-    })
+  isInShelf = (book,booksInShelf)=>{
+      return booksInShelf.find((booksInShelf)=>(book.id === booksInShelf.id))
+  }
+  updateBook = (book,shelf)=>{
+      book.shelf = shelf
+      this.setState((prevState)=>{
+        const findedBook = this.isInShelf(book,prevState.books)
+        if (findedBook){
+            findedBook.shelf = shelf
+            return {
+                books:prevState.books
+            }
+        }else{
+            return {
+                books:prevState.books.concat([book])
+            }
+        }
+      })
   }
   componentDidMount(){
       EventEmitter.on('bookMove',this.updateBook)
-      this.updateBook()
+      BooksAPI.getAll().then((books)=>{
+          this.setState({
+              books
+          })
+      })
   }
   componentWillUnmount(){
       EventEmitter.removeListener('bookMove',this.updateBook)
@@ -28,7 +44,7 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-          <Route path="/search" exact component={SearchBook} />
+          <Route path="/search" exact render={()=><SearchBook books={this.state.books}/>} />
           <Route path="/" exact render={()=>(<ListBook books={this.state.books}/>)} />
       </div>
     )
